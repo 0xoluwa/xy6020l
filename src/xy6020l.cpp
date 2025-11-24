@@ -20,8 +20,8 @@
  * @brief: debug message level on serial
  * > 1 - timeout comment
  * > 2 - HRegs contents
- *     - rx bytes and HReg of written HReg
- * > 9 - rx bytes (basic RS232 communication)
+ *     - rx uint8_ts and HReg of written HReg
+ * > 9 - rx uint8_ts (basic RS232 communication)
  */
 #define __debug__ 0
 
@@ -62,7 +62,7 @@ bool TxRingBuffer::AddTx(txRingEle* pTxEle)
   return retVal;
 }
 
-bool TxRingBuffer::AddTx(byte hRegIdx, word value)
+bool TxRingBuffer::AddTx(uint8_t hRegIdx, uint16_t value)
 {
   txRingEle TxEle;
   TxEle.mHregIdx= hRegIdx;
@@ -89,7 +89,7 @@ bool TxRingBuffer::GetTx(txRingEle& TxEle)
 }
 
 
-xy6020l::xy6020l(Stream& serial, byte adr, byte txPeriod, byte options )
+xy6020l::xy6020l(Stream& serial, uint8_t adr, uint8_t txPeriod, uint8_t options )
 {
   mSerial= &serial;
   mAdr=adr;
@@ -130,7 +130,7 @@ bool xy6020l::HRegUpdated(void)
 };
 
 /** @brief: read register reply, must be decoded to Hregister content */
-bool xy6020l::RxDecode03( byte cnt)
+bool xy6020l::RxDecode03( uint8_t cnt)
 {
   bool RxOk= true;
 
@@ -148,11 +148,11 @@ bool xy6020l::RxDecode03( byte cnt)
     {
       if(mMemory > 10 )
       {
-        hRegs[i]= (word)mRxBuf[3+2*i] * 256 + (word)mRxBuf[4+2*i];
+        hRegs[i]= (uint16_t)mRxBuf[3+2*i] * 256 + (uint16_t)mRxBuf[4+2*i];
       }
       else
       {
-        mMem[i]= (word)mRxBuf[3+2*i] * 256 + (word)mRxBuf[4+2*i];
+        mMem[i]= (uint16_t)mRxBuf[3+2*i] * 256 + (uint16_t)mRxBuf[4+2*i];
       }
     }
   };
@@ -190,19 +190,19 @@ bool xy6020l::RxDecode03( byte cnt)
   return RxOk;
 }
 
-bool xy6020l::RxDecode06( byte cnt)
+bool xy6020l::RxDecode06( uint8_t cnt)
 {
   bool RxOk= true;
-  word RegNr;
+  uint16_t RegNr;
   char tmpBuf[30];
 
   mRxThis = mRxBuf[0]==mAdr? true:false;
   if(mRxBuf[1]==0x06)
   {
-    RegNr = (word)mRxBuf[2] *256 + mRxBuf[3];
+    RegNr = (uint16_t)mRxBuf[2] *256 + mRxBuf[3];
     if (RegNr < NB_HREGS) 
     {
-      hRegs[RegNr] = (word)mRxBuf[4] *256 + mRxBuf[5];
+      hRegs[RegNr] = (uint16_t)mRxBuf[4] *256 + mRxBuf[5];
     }
   };
   
@@ -215,16 +215,16 @@ bool xy6020l::RxDecode06( byte cnt)
   return RxOk;
 }
 
-bool xy6020l::RxDecode16( byte cnt)
+bool xy6020l::RxDecode16( uint8_t cnt)
 {
   bool RxOk= true;
-  word RegNr;
+  uint16_t RegNr;
   char tmpBuf[30];
 
   mRxThis = mRxBuf[0]==mAdr? true:false;
   if(mRxBuf[1]==0x10)
   {
-    RegNr = (word)mRxBuf[2] *256 + mRxBuf[3];
+    RegNr = (uint16_t)mRxBuf[2] *256 + mRxBuf[3];
   };
   
   #if __debug__ > 2  
@@ -236,7 +236,7 @@ bool xy6020l::RxDecode16( byte cnt)
   return RxOk;
 }
 
-void xy6020l::RxDecodeExceptions(byte cnt)
+void xy6020l::RxDecodeExceptions(uint8_t cnt)
 {
   char tmpBuf[30];
 
@@ -319,7 +319,7 @@ void xy6020l::task()
       {
 
           #if __debug__ > 9  
-          Serial.print("Send bytes: ");
+          Serial.print("Send uint8_ts: ");
           for(int i=0; i < mTxBufIdx; i++)
           {
             sprintf( tmpBuf, "%02X ",mTxBuf[i] );
@@ -384,7 +384,7 @@ void xy6020l::task()
   }
 };
 
-void xy6020l::SendReadHReg( word startReg, word nbRegs)
+void xy6020l::SendReadHReg( uint16_t startReg, uint16_t nbRegs)
 {
   // tx buffer free?
   if( mTxBufIdx == 0 )
@@ -414,10 +414,10 @@ void xy6020l::SetMemory(tMemory& mem )
     mMem[HREG_IDX_M_SOPP] = mem.sOPP;
     mMem[HREG_IDX_M_SOHPH]= mem.sOHPh;
     mMem[HREG_IDX_M_SOHPM]= mem.sOHPm;
-    mMem[HREG_IDX_M_SOAHL]= (word)(mem.sOAH & 0xFFFF);
-    mMem[HREG_IDX_M_SOAHH]= (word)(mem.sOAH >> 16);
-    mMem[HREG_IDX_M_SOWHL]= (word)(mem.sOWH & 0xFFFF);
-    mMem[HREG_IDX_M_SOWHH]= (word)(mem.sOWH >> 16);
+    mMem[HREG_IDX_M_SOAHL]= (uint16_t)(mem.sOAH & 0xFFFF);
+    mMem[HREG_IDX_M_SOAHH]= (uint16_t)(mem.sOAH >> 16);
+    mMem[HREG_IDX_M_SOWHL]= (uint16_t)(mem.sOWH & 0xFFFF);
+    mMem[HREG_IDX_M_SOWHH]= (uint16_t)(mem.sOWH >> 16);
     mMem[HREG_IDX_M_SOTP]= mem.sOTP;
     mMem[HREG_IDX_M_SINI]= mem.sINI;
     // queue cmd for memory write 
@@ -467,7 +467,7 @@ bool xy6020l::GetMemory(tMemory* pMem)
 }
 
 
-bool xy6020l::setHReg(byte nr, word value)
+bool xy6020l::setHReg(uint8_t nr, uint16_t value)
 {
   bool retVal=false;
 
@@ -534,7 +534,7 @@ bool xy6020l::setHRegFromBuf()
 
 void xy6020l::CRCModBus(int datalen)
 {
-  word crc = 0xFFFF;
+  uint16_t crc = 0xFFFF;
   for (int pos = 0; pos < datalen; pos++)
   {
       crc ^= mTxBuf[pos];
@@ -550,14 +550,14 @@ void xy6020l::CRCModBus(int datalen)
               crc >>= 1;
       }
   }
-  mTxBuf[datalen] = (byte)(crc & 0xFF);
-  mTxBuf[datalen + 1] = (byte)((crc >> 8) & 0xFF);
+  mTxBuf[datalen] = (uint8_t)(crc & 0xFF);
+  mTxBuf[datalen + 1] = (uint8_t)((crc >> 8) & 0xFF);
 }
 
-bool xy6020l::setSlaveAdd( word add) 
+bool xy6020l::setSlaveAdd( uint16_t add) 
 { 
   bool retVal= true;
-  if( setHReg(HREG_IDX_SLAVE_ADD, add & (word)0x00FF ) )
+  if( setHReg(HREG_IDX_SLAVE_ADD, add & (uint16_t)0x00FF ) )
   {
     // change address only if command could be places in tx buffer !
     //mAdr= add;
@@ -568,7 +568,7 @@ bool xy6020l::setSlaveAdd( word add)
   return retVal;
 };
 
-void xy6020l::setMemoryRegs(byte HRegIdx)
+void xy6020l::setMemoryRegs(uint8_t HRegIdx)
 {
   int iMem;
 
@@ -581,7 +581,7 @@ void xy6020l::setMemoryRegs(byte HRegIdx)
   // number of regs to write
   mTxBuf[4]=  0;
   mTxBuf[5]= 14;
-  // bytes to write
+  // uint8_ts to write
   mTxBuf[6]= 2* 14;
   // memory set HRegs
   // register are cached in mMem[] array !

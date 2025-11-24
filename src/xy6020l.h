@@ -91,8 +91,8 @@
 
 #define TX_RING_BUFFER_SIZE 16
 typedef struct {
-  byte mHregIdx;
-  word mValue;
+  uint8_t mHregIdx;
+  uint16_t mValue;
 } txRingEle;
 
 class TxRingBuffer
@@ -107,24 +107,24 @@ class TxRingBuffer
     bool IsEmpty() { return (mIn<1);};
     bool IsFull() { return (mIn>=TX_RING_BUFFER_SIZE);}
     bool AddTx(txRingEle* pTxEle);
-    bool AddTx(byte hRegIdx, word value);
+    bool AddTx(uint8_t hRegIdx, uint16_t value);
     bool GetTx(txRingEle& pTxEle);
 };
 
 typedef struct {
-    byte Nr;
-    word VSet;
-    word ISet;
-    word sLVP;
-    word sOVP;
-    word sOCP;
-    word sOPP;
-    word sOHPh;
-    word sOHPm;
+    uint8_t Nr;
+    uint16_t VSet;
+    uint16_t ISet;
+    uint16_t sLVP;
+    uint16_t sOVP;
+    uint16_t sOCP;
+    uint16_t sOPP;
+    uint16_t sOHPh;
+    uint16_t sOHPm;
     unsigned long sOAH;
     unsigned long sOWH;
-    word sOTP;
-    word sINI;
+    uint16_t sOTP;
+    uint16_t sINI;
 } tMemory;
 
 /**
@@ -144,7 +144,7 @@ class xy6020l
      * @param adr slave address of the xy device, can be change by setSlaveAdd command
      * @param txPeriod minimum period to wait for next tx message, at times < 50 ms the XY6020 does not send answers
      */
-    xy6020l(Stream& serial, byte adr=1, byte txPeriod=50, byte options=XY6020_OPT_SKIP_SAME_HREG_VALUE );
+    xy6020l(Stream& serial, uint8_t adr=1, uint8_t txPeriod=50, uint8_t options=XY6020_OPT_SKIP_SAME_HREG_VALUE );
     /**
      * @brief Task method that must be called in loop() function of the main program cyclically.
      * It automatically triggers the reading of the Holding Registers each PERIOD_READ_ALL_HREGS ms.
@@ -162,44 +162,44 @@ class xy6020l
     /// @{
     // 
     /** @brief voltage setpoint, LSB: 0.01 V , R/W  */
-    word getCV(void) { return (word)hRegs[ HREG_IDX_CV]; };
-    bool setCV( word cv) { return mTxRingBuffer.AddTx(HREG_IDX_CV, cv);};
+    uint16_t getCV(void) { return (uint16_t)hRegs[ HREG_IDX_CV]; };
+    bool setCV( uint16_t cv) { return mTxRingBuffer.AddTx(HREG_IDX_CV, cv);};
 
     /** @brief constant current  setpoint, LSB: 0.01 A , R/W  */
-    word getCC() { return (word)hRegs[ HREG_IDX_CC]; };
-    bool setCC( word cc) { return mTxRingBuffer.AddTx(HREG_IDX_CC, cc);};
+    uint16_t getCC() { return (uint16_t)hRegs[ HREG_IDX_CC]; };
+    bool setCC( uint16_t cc) { return mTxRingBuffer.AddTx(HREG_IDX_CC, cc);};
 
     /** @brief actual input voltage , LSB: 0.01 V, readonly  */
-    word getInV() { return (word)hRegs[ HREG_IDX_IN_V ]; };
+    uint16_t getInV() { return (uint16_t)hRegs[ HREG_IDX_IN_V ]; };
     /** @brief actual voltage at output, LSB: 0.01 V, readonly  */
-    word getActV() { return (word)hRegs[ HREG_IDX_ACT_V]; };
+    uint16_t getActV() { return (uint16_t)hRegs[ HREG_IDX_ACT_V]; };
     /** @brief actual current at output, LSB: 0.01 A, readonly  */
-    word getActC() { return (word)hRegs[ HREG_IDX_ACT_C]; };
+    uint16_t getActC() { return (uint16_t)hRegs[ HREG_IDX_ACT_C]; };
     /** @brief actual power at output, LSB: 0.01 W, readonly  */
-    word getActP() { return (word)hRegs[ HREG_IDX_ACT_P]; };
-    /** @brief actual charge from output, LSB: 0.001 Ah, readonly, with high word because not tested yet  */
-    word getCharge() { return (word)hRegs[ HREG_IDX_OUT_CHRG ]  ; };
-    /** @brief actual energy provided from output, LSB: 0.001 Wh, readonly, with high word because not tested yet  */
-    word getEnergy() { return (word)hRegs[ HREG_IDX_OUT_ENERGY ]  ; };
+    uint16_t getActP() { return (uint16_t)hRegs[ HREG_IDX_ACT_P]; };
+    /** @brief actual charge from output, LSB: 0.001 Ah, readonly, with high uint16_t because not tested yet  */
+    uint16_t getCharge() { return (uint16_t)hRegs[ HREG_IDX_OUT_CHRG ]  ; };
+    /** @brief actual energy provided from output, LSB: 0.001 Wh, readonly, with high uint16_t because not tested yet  */
+    uint16_t getEnergy() { return (uint16_t)hRegs[ HREG_IDX_OUT_ENERGY ]  ; };
     /** @brief actual output time, LSB: 1 h, readonly */
-    word getHour() { return (word)hRegs[ HREG_IDX_ON_HOUR ]  ; };
+    uint16_t getHour() { return (uint16_t)hRegs[ HREG_IDX_ON_HOUR ]  ; };
     /** @brief actual output time, LSB: 1 min, readonly */
-    word getMin() { return (word)hRegs[ HREG_IDX_ON_MIN ]  ; };
+    uint16_t getMin() { return (uint16_t)hRegs[ HREG_IDX_ON_MIN ]  ; };
     /** @brief actual output time, LSB: 1 secs, readonly */
-    word getSec() { return (word)hRegs[ HREG_IDX_ON_SEC ]  ; };
+    uint16_t getSec() { return (uint16_t)hRegs[ HREG_IDX_ON_SEC ]  ; };
 
     /** @brief dcdc temperature, LSB: 0.1°C/F, readonly */
-    word getTemp() { return (word)hRegs[ HREG_IDX_TEMP ]  ; };
+    uint16_t getTemp() { return (uint16_t)hRegs[ HREG_IDX_TEMP ]  ; };
     /** @brief external temperature, LSB: 0.1°C/F, readonly */
-    word getTempExt() { return (word)hRegs[ HREG_IDX_TEMP_EXD ]; };
+    uint16_t getTempExt() { return (uint16_t)hRegs[ HREG_IDX_TEMP_EXD ]; };
 
     /** @brief lock switch, true = on, R/W   */
     bool getLockOn() { return hRegs[ HREG_IDX_LOCK]>0?true:false; };
     bool setLockOn(bool onState) { return mTxRingBuffer.AddTx(HREG_IDX_LOCK, onState?1:0);};
 
     /** @brief lock switch, true = on, R/W   */
-    word getProtect() { return hRegs[ HREG_IDX_PROTECT]; };
-    bool setProtect(word state) { return setHReg(HREG_IDX_PROTECT, state );};
+    uint16_t getProtect() { return hRegs[ HREG_IDX_PROTECT]; };
+    bool setProtect(uint16_t state) { return setHReg(HREG_IDX_PROTECT, state );};
 
     /** @brief returns if CC is active , true = on, read only   */
     bool isCC() { return hRegs[ HREG_IDX_CVCC]>0?true:false; };
@@ -216,29 +216,29 @@ class xy6020l
     bool setTempAsFahrenheit(void)  { return setHReg(HREG_IDX_FC, 1);};
 
     /** @brief returns the product number, readonly */
-    word getModel(void)  { return (word)hRegs[ HREG_IDX_MODEL ]  ; };
+    uint16_t getModel(void)  { return (uint16_t)hRegs[ HREG_IDX_MODEL ]  ; };
     /** @brief returns the version number, readonly */
-    word getVersion(void)  { return (word)hRegs[ HREG_IDX_VERSION ]  ; };
+    uint16_t getVersion(void)  { return (uint16_t)hRegs[ HREG_IDX_VERSION ]  ; };
 
     /** @brief slave address, R/W, take effect after reset of XY6020L !  */
-    word getSlaveAdd(void) { return (word)hRegs[ HREG_IDX_SLAVE_ADD]; };
-    bool setSlaveAdd( word add);
+    uint16_t getSlaveAdd(void) { return (uint16_t)hRegs[ HREG_IDX_SLAVE_ADD]; };
+    bool setSlaveAdd( uint16_t add);
 
     /** @brief baud rate , W, no read option because on use  
         @todo: provide enum for rate number to avoid random/unsupported number */
-    bool setBaudrate( word rate) { return setHReg(HREG_IDX_BAUDRATE, rate);};
+    bool setBaudrate( uint16_t rate) { return setHReg(HREG_IDX_BAUDRATE, rate);};
 
     /** @brief internal temperature offset, R/W  */
-    word getTempOfs(void) { return (word)hRegs[ HREG_IDX_TEMP_OFS]; };
-    bool setTempOfs( word tempOfs) { return setHReg(HREG_IDX_TEMP_OFS, tempOfs );};
+    uint16_t getTempOfs(void) { return (uint16_t)hRegs[ HREG_IDX_TEMP_OFS]; };
+    bool setTempOfs( uint16_t tempOfs) { return setHReg(HREG_IDX_TEMP_OFS, tempOfs );};
 
     /** @brief external temperature offset, R/W  */
-    word getTempExtOfs(void) { return (word)hRegs[ HREG_IDX_TEMP_EXT_OFS]; };
-    bool setTempExtOfs( word tempOfs) { return setHReg(HREG_IDX_TEMP_EXT_OFS, tempOfs );};
+    uint16_t getTempExtOfs(void) { return (uint16_t)hRegs[ HREG_IDX_TEMP_EXT_OFS]; };
+    bool setTempExtOfs( uint16_t tempOfs) { return setHReg(HREG_IDX_TEMP_EXT_OFS, tempOfs );};
 
     /** @brief Presets, R/W  */
-    word getPreset(void) { return (word)hRegs[ HREG_IDX_MEMORY]; };
-    bool setPreset( word preset) { return setHReg(HREG_IDX_MEMORY, preset );};
+    uint16_t getPreset(void) { return (uint16_t)hRegs[ HREG_IDX_MEMORY]; };
+    bool setPreset( uint16_t preset) { return setHReg(HREG_IDX_MEMORY, preset );};
     /// @}
     
     bool TxBufEmpty(void) { return ((mTxBufIdx<=0)&&(mTxRingBuffer.IsEmpty()));};
@@ -247,50 +247,50 @@ class xy6020l
     void PrintMemory(tMemory& mem);
 
   private:
-    byte          mAdr;
-    byte          mOptions;
+    uint8_t          mAdr;
+    uint8_t          mOptions;
     Stream*       mSerial;
-    byte          mRxBufIdx;
+    uint8_t          mRxBufIdx;
     unsigned char mRxBuf[60];
-    byte          mRxState;
+    uint8_t          mRxState;
     bool          mRxThis;
-    byte          mRxSize;
-    word          mRxFrameCnt;
-    word          mRxFrameCntLast;
-    byte          mLastExceptionCode;
+    uint8_t          mRxSize;
+    uint16_t          mRxFrameCnt;
+    uint16_t          mRxFrameCntLast;
+    uint8_t          mLastExceptionCode;
 
     enum          Response { None, Confirm, Data };
     Response      mResponse;
     /** @brief rx answer belongs to memory request data
      *   M0..M9 -> 0..9 ;  255 no memory   */
-    byte          mMemory; 
+    uint8_t          mMemory; 
     long          mTs;
     long          mTO;
     long          mTLastTx;
-    byte          mCntTO;
-    byte          mTxPeriod;
+    uint8_t          mCntTO;
+    uint8_t          mTxPeriod;
 
     int           mTxBufIdx;
     unsigned char mTxBuf[40];
     TxRingBuffer  mTxRingBuffer;
 
     /** @brief buffer to cache hold regs after reading them at once and to check if update needed for writting regs */
-    word          hRegs[NB_HREGS];
+    uint16_t          hRegs[NB_HREGS];
     /** @brief 1 cache for memory register */
-    word          mMem[NB_MEMREGS];
+    uint16_t          mMem[NB_MEMREGS];
     enum          MemoryState { Send, Wait };
     MemoryState   mMemoryState;
-    word          mMemoryLastFrame;
+    uint16_t          mMemoryLastFrame;
 
-    bool setHReg(byte nr, word value);
+    bool setHReg(uint8_t nr, uint16_t value);
     bool setHRegFromBuf(void);
 
     void CRCModBus(int datalen);
-    void RxDecodeExceptions(byte cnt);
-    bool RxDecode03( byte cnt);
-    bool RxDecode06( byte cnt);
-    bool RxDecode16( byte cnt);
-    void SendReadHReg( word startReg, word nbRegs);
-    void setMemoryRegs(byte HRegIdx);
+    void RxDecodeExceptions(uint8_t cnt);
+    bool RxDecode03( uint8_t cnt);
+    bool RxDecode06( uint8_t cnt);
+    bool RxDecode16( uint8_t cnt);
+    void SendReadHReg( uint16_t startReg, uint16_t nbRegs);
+    void setMemoryRegs(uint8_t HRegIdx);
 };
 #endif
